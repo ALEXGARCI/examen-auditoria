@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario de Evaluación Profesional - Auditoría Pública</title>
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --primary-dark: #1e293b;
+            --accent: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --error: #dc2626;
+            --radius: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 850px;
+            background: var(--card);
+            padding: 35px;
+            border-radius: var(--radius);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border: 1px solid var(--border);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            color: var(--primary);
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--primary-dark);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn:active {
+            transform: scale(0.99);
+        }
+
+        /* Quiz Styles */
+        .quiz-progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border);
+            border-radius: 4px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .question-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+
+        .options-list {
+            list-style: none;
+            margin-bottom: 25px;
+        }
+
+        .option-item {
+            margin-bottom: 12px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: flex-start;
+            padding: 14px 16px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background-color: #fff;
+        }
+
+        .option-label:hover {
+            border-color: var(--accent);
+            background-color: #f0f7ff;
+        }
+
+        .option-label input[type="radio"] {
+            margin-right: 12px;
+            margin-top: 3px;
+            accent-color: var(--accent);
+            width: 18px;
+            height: 18px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: var(--primary-dark);
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+
+        /* Results Styles */
+        .results-header {
+            text-align: center;
+            padding: 20px;
+            border-radius: var(--radius);
+            background: #f1f5f9;
+            margin-bottom: 25px;
+        }
+
+        .score-display {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .user-info-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+
+        .user-info-summary div span {
+            font-weight: bold;
+            color: var(--primary-dark);
+        }
+
+        .review-section {
+            margin-top: 25px;
+        }
+
+        .review-item {
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 15px;
+            background-color: #fff;
+        }
+
+        .review-item.correct {
+            border-left: 5px solid var(--success);
+        }
+
+        .review-item.incorrect {
+            border-left: 5px solid var(--error);
+        }
+
+        .review-q {
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .review-ans {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .txt-correct {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .txt-incorrect {
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        .print-btn {
+            margin-top: 20px;
+            background-color: #475569;
+        }
+
+        .print-btn:hover {
+            background-color: #334155;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+                max-width: 100%;
+            }
+            .btn, .nav-buttons {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>CUESTIONARIO DE EVALUACIÓN PROFESIONAL</h1>
+        <p>Guía General de Auditoría Pública (SFP, 2018)</p>
+    </header>
+
+    <!-- PASO 1: Registro de Datos -->
+    <div id="step-registration" class="step active">
+        <h2 style="margin-bottom: 20px; font-size: 1.2rem; color: var(--primary-dark);">Datos del Evaluado</h2>
+        <form id="info-form">
+            <div class="form-group">
+                <label for="fullName">Nombre Completo *</label>
+                <input type="text" id="fullName" required placeholder="Ej. Juan Pérez Gómez">
+            </div>
+            <div class="form-group">
+                <label for="empNumber">Número de Empleado *</label>
+                <input type="text" id="empNumber" required placeholder="Ej. EMP-10492">
+            </div>
+            <div class="form-group">
+                <label for="position">Puesto que Desempeña *</label>
+                <input type="text" id="position" required placeholder="Ej. Auditor Jr. / Especialista">
+            </div>
+            <div class="form-group">
+                <label for="quadrant">Número de Cuadrante *</label>
+                <input type="text" id="quadrant" required placeholder="Ej. Cuadrante 3">
+            </div>
+            <button type="submit" class="btn">Iniciar Evaluación</button>
+        </form>
+    </div>
+
+    <!-- PASO 2: Cuestionario -->
+    <div id="step-quiz" class="step">
+        <div class="quiz-progress">
+            <span id="question-number">Pregunta 1 de 30</span>
+            <span id="quiz-percentage">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+
+        <div id="quiz-container">
+            <div class="question-title" id="question-text"></div>
+            <ul class="options-list" id="options-container"></ul>
+        </div>
+
+        <div class="nav-buttons">
+            <button id="btn-prev" class="btn btn-secondary" onclick="prevQuestion()" style="display:none;">Anterior</button>
+            <button id="btn-next" class="btn" onclick="nextQuestion()">Siguiente</button>
+        </div>
+    </div>
+
+    <!-- PASO 3: Resultados y Evaluación -->
+    <div id="step-results" class="step">
+        <div class="results-header">
+            <h2>Evaluación Final de Aprendizaje</h2>
+            <div class="score-display" id="final-score">0 / 30</div>
+            <p id="qualification-badge" style="font-weight: 700; font-size: 1.1rem;"></p>
+        </div>
+
+        <div class="user-info-summary">
+            <div><span>Nombre:</span> <br><span id="res-name" style="font-weight:normal;"></span></div>
+            <div><span>No. Empleado:</span> <br><span id="res-emp" style="font-weight:normal;"></span></div>
+            <div><span>Puesto:</span> <br><span id="res-pos" style="font-weight:normal;"></span></div>
+            <div><span>Cuadrante:</span> <br><span id="res-quad" style="font-weight:normal;"></span></div>
+        </div>
+
+        <h3 style="margin-bottom: 15px; color: var(--primary-dark);">Desglose de Respuestas</h3>
+        <div id="review-container" class="review-section"></div>
+
+        <button class="btn print-btn" onclick="window.print()">Guardar / Imprimir Reporte</button>
+        <button class="btn btn-secondary" onclick="location.reload()" style="margin-top: 10px;">Reiniciar Cuestionario</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "1. ¿Cuál es el objetivo principal de la etapa de Planeación General en la Auditoría Pública según la Guía General?",
+            options: [
+                { text: "A) Determinar el objetivo, alcance, rubros a examinar, recursos necesarios y el calendario de trabajo de la auditoría.", correct: true },
+                { text: "B) Recopilar únicamente los estados financieros para elaborar el dictamen técnico final.", correct: false },
+                { text: "C) Sustituir la fase de ejecución cuando los controles internos sean evaluados con nivel alto.", correct: false },
+                { text: "D) Iniciar de inmediato las pruebas sustantivas en las áreas con mayor presupuesto ejecutado.", correct: false }
+            ]
+        },
+        {
+            q: "2. En la Planeación Detallada, ¿cuáles son los elementos clave que deben quedar estructurados antes de iniciar las visitas de campo?",
+            options: [
+                { text: "A) Las cédulas de seguimiento y los informes de auditorías de años anteriores únicamente.", correct: false },
+                { text: "B) Las actas administrativas y las notificaciones a los proveedores del ente auditado.", correct: false },
+                { text: "C) Evaluación del control interno, programa de trabajo detallado y criterios de muestreo.", correct: true },
+                { text: "D) La orden de auditoría y las constancias de cumplimiento de observaciones.", correct: false }
+            ]
+        },
+        {
+            q: "3. Con base en la Carta de Planeación y el Cronograma de Trabajo (Anexos de la Guía), ¿qué aspecto es indispensable definir respecto a los límites temporales?",
+            options: [
+                { text: "A) El número de días de vacaciones de los auditores encargados del área.", correct: false },
+                { text: "B) Establecer el periodo que abarcará la revisión y la fecha base de la información objeto de estudio.", correct: true },
+                { text: "C) El plazo máximo para que los proveedores envíen sus confirmaciones de saldos.", correct: false },
+                { text: "D) La fecha en que se emitirá la legislación presupuestaria del siguiente ejercicio.", correct: false }
+            ]
+        },
+        {
+            q: "4. ¿Qué elemento de legalidad debe contemplarse prioritariamente al formular la Orden de Auditoría?",
+            options: [
+                { text: "A) La firma del representante legal del proveedor de servicios de TI.", correct: false },
+                { text: "B) La manifestación expresa de confidencialidad redactada por el órgano de control externo.", correct: false },
+                { text: "C) La especificación exclusiva de montos económicos a revisar sin importar el periodo.", correct: false },
+                { text: "D) Justificación y motivación de la orden de auditoría.", correct: true }
+            ]
+        },
+        {
+            q: "5. ¿Cuál es la finalidad primordial de la formalización del Acta de Inicio de Auditoría?",
+            options: [
+                { text: "A) Formalizar el inicio de los trabajos en las instalaciones del ente auditado y notificar la orden de auditoría.", correct: true },
+                { text: "B) Emitir de manera inmediata las observaciones preliminares encontradas en el archivo.", correct: false },
+                { text: "C) Dar por concluidas las fases de planeación y ejecución de manera simultánea.", correct: false },
+                { text: "D) Definir la sanción administrativa correspondiente a las irregularidades detectadas.", correct: false }
+            ]
+        },
+        {
+            q: "6. De acuerdo con los procedimientos normados, ¿cuál es la secuencia correcta de actos administrativos en el arranque de la revisión?",
+            options: [
+                { text: "A) Levantamiento de cédulas -> Requerimiento -> Cierre de auditoría.", correct: false },
+                { text: "B) Informe preliminar -> Notificación de orden -> Examen sustantivo.", correct: false },
+                { text: "C) Notificación de la orden, levantamiento del acta de inicio y requerimiento de información.", correct: true },
+                { text: "D) Acta de cierre -> Elaboración del programa de trabajo -> Muestreo.", correct: false }
+            ]
+        },
+        {
+            q: "7. Durante la etapa de Ejecución, ¿cuál es el propósito de realizar Pruebas de Cumplimiento?",
+            options: [
+                { text: "A) Verificar exclusivamente que las cifras de los balances cuadren en los libros contables.", correct: false },
+                { text: "B) Probar el cumplimiento de las disposiciones normativas y la confiabilidad del control interno.", correct: true },
+                { text: "C) Sancionar penalmente a los servidores públicos por desacato a los lineamientos.", correct: false },
+                { text: "D) Reducir el alcance del programa de trabajo sin justificación técnica.", correct: false }
+            ]
+        },
+        {
+            q: "8. ¿En qué consiste la técnica de auditoría denominada 'Inspección' o 'Constatación Física'?",
+            options: [
+                { text: "A) Constatación física directiva mediante la observación o inspección visual de bienes o procesos.", correct: true },
+                { text: "B) Entrevista estructurada a los beneficiarios de los programas sociales.", correct: false },
+                { text: "C) Solicitar a un banco los estados de cuenta mensuales del ente auditado.", correct: false },
+                { text: "D) Comprobar matemáticamente los cálculos aritméticos de una factura.", correct: false }
+            ]
+        },
+        {
+            q: "9. En el marco del Cierre de la Fase de Ejecución, ¿quiénes firman el Acta de Cierre de Auditoría?",
+            options: [
+                { text: "A) Exclusivamente el auditor líder y los testigos de asistencia designados.", correct: false },
+                { text: "B) Únicamente los auditores externos contratados para la revisión contable.", correct: false },
+                { text: "C) Todos los empleados del área financiera del ente auditado y la prensa local.", correct: false },
+                { text: "D) El titular del órgano fiscalizador y el titular del ente auditado.", correct: true }
+            ]
+        },
+        {
+            q: "10. ¿Qué representan las 'Aclaraciones o Justificaciones' presentadas por el ente auditado durante la Confronta?",
+            options: [
+                { text: "A) Pruebas extemporáneas que carecen de validez jurídica en el proceso de fiscalización.", correct: false },
+                { text: "B) Aclaraciones o justificaciones aportadas por el ente auditado para desvirtuar la observación antes del cierre.", correct: true },
+                { text: "C) La aceptación implícita de todas las responsabilidades administrativas e imputaciones.", correct: false },
+                { text: "D) Documentos obligatorios que sustituyen la cédula de observaciones final.", correct: false }
+            ]
+        },
+        {
+            q: "11. Según la Guía General de Auditoría Pública, ¿cuáles son los cuatro elementos fundamentales de una Observación de Auditoría?",
+            options: [
+                { text: "A) Condición, Criterio, Causa y Efecto.", correct: true },
+                { text: "B) Antecedentes, Presupuesto, Monto y Multa.", correct: false },
+                { text: "C) Hipótesis, Muestra, Resultado y Visto Bueno.", correct: false },
+                { text: "D) Objeto, Sujeto, Fundamento y Sentencia.", correct: false }
+            ]
+        },
+        {
+            q: "12. En la redacción del elemento 'Criterio' dentro de una Cédula de Observación, ¿qué se debe precisar?",
+            options: [
+                { text: "A) La situación irregular o desviación detectada tal como se encontró en la realidad.", correct: false },
+                { text: "B) El impacto económico o cuantitativo generado por la deficiencia administrativa.", correct: false },
+                { text: "C) Detallar la descripción del hallazgo, su fundamentación legal y la cuantificación económica si aplica.", correct: true },
+                { text: "D) La recomendación preventiva dictada por el equipo auditor para solucionar el problema.", correct: false }
+            ]
+        },
+        {
+            q: "13. ¿Cuál es el objetivo principal del Informe Final de Auditoría Pública?",
+            options: [
+                { text: "A) Publicar las inconsistencias en medios de comunicación antes del análisis final.", correct: false },
+                { text: "B) Presentar de manera formal los resultados generales, observaciones, conclusiones y recomendaciones finales.", correct: true },
+                { text: "C) Solicitar la destitución inmediata de los directores generales implicados.", correct: false },
+                { text: "D) Iniciar las auditorías del siguiente año fiscal sin cerrar la actual.", correct: false }
+            ]
+        },
+        {
+            q: "14. Conforme a la Guía, ¿cuál es el plazo estándar otorgado a la entidad auditada para presentar el Plan de Trabajo para la atención de recomendaciones?",
+            options: [
+                { text: "A) 5 días naturales tras la firma del acta de inicio.", correct: false },
+                { text: "B) 10 días hábiles posteriores a la reunión de confronta.", correct: false },
+                { text: "C) 30 días naturales sin opción a prórroga.", correct: false },
+                { text: "D) 45 días hábiles contados a partir de la notificación formal del informe final.", correct: true }
+            ]
+        },
+        {
+            q: "15. ¿En qué consiste la etapa de Seguimiento de Observaciones?",
+            options: [
+                { text: "A) Verificar e informar sobre la atención e implementación efectiva de las acciones correctivas o preventivas.", correct: true },
+                { text: "B) Realizar una nueva auditoría integral desde la etapa de planeación general.", correct: false },
+                { text: "C) Cancelar automáticamente todas las observaciones que excedan de seis meses.", correct: false },
+                { text: "D) Imponer sanciones económicas directas a los responsables del incumplimiento.", correct: false }
+            ]
+        },
+        {
+            q: "16. ¿Qué documento oficial emite el órgano fiscalizador cuando el ente auditado comprueba la solventación total de un hallazgo?",
+            options: [
+                { text: "A) Pliego de Responsabilidades Definitivo.", correct: false },
+                { text: "B) Dictamen de Incumplimiento Grave.", correct: false },
+                { text: "C) Constancia de Cumplimiento / Cierre del Seguimiento.", correct: true },
+                { text: "D) Acuerdo de Inicio de Procedimiento Sanatorio.", correct: false }
+            ]
+        },
+        {
+            q: "17. Para dictaminar que una observación persiste como 'No Solventada', ¿qué herramienta de registro se actualiza?",
+            options: [
+                { text: "A) La Orden de Auditoría Inicial.", correct: false },
+                { text: "B) Cédula de Seguimiento de Observaciones.", correct: true },
+                { text: "C) El Expediente Permanente del Ente.", correct: false },
+                { text: "D) La Carta de Planeación Definitiva.", correct: false }
+            ]
+        },
+        {
+            q: "18. ¿En qué momento del proceso de auditoría debe llevarse a cabo la función de Supervisión?",
+            options: [
+                { text: "A) Durante todas las fases del proceso de auditoría, desde la planeación hasta el seguimiento.", correct: true },
+                { text: "B) Exclusivamente el último día hábil de la etapa de ejecución.", correct: false },
+                { text: "C) Únicamente cuando la entidad auditada presenta una queja formal.", correct: false },
+                { text: "D) Al finalizar el año fiscal posterior a la emisión del informe.", correct: false }
+            ]
+        },
+        {
+            q: "19. ¿Cuál es una de las responsabilidades directas del Supervisor de Auditoría al revisar los Papeles de Trabajo?",
+            options: [
+                { text: "A) Redactar personalmente todos los oficios de requerimiento de información.", correct: false },
+                { text: "B) Negociar con el auditado la eliminación de hallazgos sin evidencia suficiente.", correct: false },
+                { text: "C) Reemplazar al auditor encargado durante las reuniones de confronta.", correct: false },
+                { text: "D) Dejar evidencia documental de la revisión, revisión analítica y validación de las cédulas y evidencias recopiladas.", correct: true }
+            ]
+        },
+        {
+            q: "20. ¿Qué formato o cédula analítica se utiliza prioritariamente para documentar el estudio y evaluación de un proceso administrativo?",
+            options: [
+                { text: "A) Cédula Sumaria de Presupuesto.", correct: false },
+                { text: "B) Cédula de Marcas de Auditoría.", correct: false },
+                { text: "C) Cédula Descriptiva o Narrativa de Procesos.", correct: true },
+                { text: "D) Cédula de Notificación Personal.", correct: false }
+            ]
+        },
+        {
+            q: "21. ¿Cuál es la función de una 'Cédula Sub-sumaria' o 'Analítica' en el expediente de auditoría?",
+            options: [
+                { text: "A) Archivar la correspondencia no oficial emitida por el ente auditado.", correct: false },
+                { text: "B) Resumir y agrupar los hallazgos relativos a un mismo rubro, concepto o cuenta examinada.", correct: true },
+                { text: "C) Sustituir el informe final cuando este contenga discrepancias.", correct: false },
+                { text: "D) Registrar las firmas de asistencia a la reunión de inicio.", correct: false }
+            ]
+        },
+        {
+            q: "22. Según los Anexos de la Guía, ¿cómo se dividen los expedientes de auditoría para su archivo y resguardo?",
+            options: [
+                { text: "A) Expediente Permanente y Expediente de la Auditoría (Corriente).", correct: true },
+                { text: "B) Expediente Físico y Expediente Destruible.", correct: false },
+                { text: "C) Archivo del Auditor y Archivo del Auditado.", correct: false },
+                { text: "D) Expediente de Borradores y Expediente Oficial.", correct: false }
+            ]
+        },
+        {
+            q: "23. ¿Qué objetivo tiene la asignación de 'Índices de Auditoría' en los Papeles de Trabajo?",
+            options: [
+                { text: "A) Determinar el costo financiero global del trabajo de auditoría.", correct: false },
+                { text: "B) Ocultar la información reservada para evitar filtraciones.", correct: false },
+                { text: "C) Calificar el desempeño individual de los auditores del equipo.", correct: false },
+                { text: "D) Garantizar el orden, localización rápida y homologación en la consulta de los papeles de trabajo.", correct: true }
+            ]
+        },
+        {
+            q: "24. ¿Qué representan las 'Marcas de Auditoría' estampadas en las cédulas de trabajo?",
+            options: [
+                { text: "A) Errores tipográficos cometidos por el personal administrativo.", correct: false },
+                { text: "B) Sellos de validez oficial emitidos por la Secretaría de Hacienda.", correct: false },
+                { text: "C) Identificar visualmente los procedimientos ejecutados y el tipo de comprobación efectuada en las cédulas.", correct: true },
+                { text: "D) Firmas autógrafas del titular del área fiscalizada.", correct: false }
+            ]
+        },
+        {
+            q: "25. La Guía General de Auditoría Pública se alinea con las normas emitidas por el Sistema Nacional de Fiscalización (SNF). ¿Cuál de las siguientes opciones expresa una base fundamental de dichas normas?",
+            options: [
+                { text: "A) La discrecionalidad de los auditores para omitir pruebas sustantivas.", correct: false },
+                { text: "B) Principios Generales de Auditoría Pública y Normas del Sistema Nacional de Fiscalización.", correct: true },
+                { text: "C) La aplicación exclusiva de criterios contables internacionales privados.", correct: false },
+                { text: "D) La subordinación del órgano fiscalizador al ente fiscalizado.", correct: false }
+            ]
+        },
+        {
+            q: "26. ¿Cómo se define el concepto de 'Riesgo de Auditoría' en la normativa pública?",
+            options: [
+                { text: "A) Riesgo de Auditoría.", correct: true },
+                { text: "B) La probabilidad de que los auditores sufran percances físicos en las visitas.", correct: false },
+                { text: "C) El peligro de que el ente auditado pierda su presupuesto asignado.", correct: false },
+                { text: "D) La posibilidad de que el informe final contenga inconsistencias presupuestarias irrelevantes.", correct: false }
+            ]
+        },
+        {
+            q: "27. ¿Cuáles son los valores éticos fundamentales que deben guiar el actuar de un auditor público según el marco del SNF?",
+            options: [
+                { text: "A) Lucro, competencia, celeridad y rigurosidad.", correct: false },
+                { text: "B) Lealtad institucional ciega, permisividad y reserva absoluta.", correct: false },
+                { text: "C) Popularidad, pragmatismo, flexibilidad y diplomacia.", correct: false },
+                { text: "D) Incorrupción, objetividad, imparcialidad y profesionalismo.", correct: true }
+            ]
+        },
+        {
+            q: "28. ¿Qué documento consolida los hallazgos y su estado de tramitación al concluir la fiscalización de una obra o servicio?",
+            options: [
+                { text: "A) Acta de confronta preliminar.", correct: false },
+                { text: "B) Oficio de requerimiento extraordinario.", correct: false },
+                { text: "C) Cédula Única de Auditoría / Cédula Sumaria de Auditoría.", correct: true },
+                { text: "D) Contrato de auditoría externa.", correct: false }
+            ]
+        },
+        {
+            q: "29. En la evaluación de la evidencia documental, ¿cuáles son los dos atributos cualitativos esenciales requeridos?",
+            options: [
+                { text: "A) La cantidad de hojas y el tipo de engargolado.", correct: false },
+                { text: "B) La suficiencia y pertinencia de las evidencias recopiladas que sustentan los hallazgos.", correct: true },
+                { text: "C) La antigüedad del documento y su color original.", correct: false },
+                { text: "D) El costo de reproducción y la firma ante notario.", correct: false }
+            ]
+        },
+        {
+            q: "30. En caso de detectarse presuntas irregularidades administrativas que puedan derivar en Faltas Administrativas Graves o Delitos, ¿qué actuación procede?",
+            options: [
+                { text: "A) Notificar por escrito a la autoridad competente la posible existencia de una falta administrativa grave o delito para su investigación formal.", correct: true },
+                { text: "B) Archivar la observación para evitar desacuerdos políticos.", correct: false },
+                { text: "C) Negociar con el servidor público una sanción económica menor.", correct: false },
+                { text: "D) Eliminar la evidencia del expediente de auditoría inmediatamente.", correct: false }
+            ]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let userInfo = {};
+
+    // DOM Elements
+    const infoForm = document.getElementById('info-form');
+    const stepRegistration = document.getElementById('step-registration');
+    const stepQuiz = document.getElementById('step-quiz');
+    const stepResults = document.getElementById('step-results');
+
+    infoForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        userInfo = {
+            fullName: document.getElementById('fullName').value,
+            empNumber: document.getElementById('empNumber').value,
+            position: document.getElementById('position').value,
+            quadrant: document.getElementById('quadrant').value
+        };
+
+        stepRegistration.classList.remove('active');
+        stepQuiz.classList.add('active');
+        loadQuestion();
+    });
+
+    function loadQuestion() {
+        const qData = questions[currentQuestionIndex];
+        document.getElementById('question-number').innerText = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+        document.getElementById('question-text').innerText = qData.q;
+
+        const percentage = Math.round(((currentQuestionIndex) / questions.length) * 100);
+        document.getElementById('quiz-percentage').innerText = `${percentage}%`;
+        document.getElementById('progress-bar-fill').style.width = `${percentage}%`;
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        qData.options.forEach((opt, idx) => {
+            const li = document.createElement('li');
+            li.className = 'option-item';
+            
+            const isChecked = userAnswers[currentQuestionIndex] === idx;
+
+            li.innerHTML = `
+                <label class="option-label">
+                    <input type="radio" name="option" value="${idx}" ${isChecked ? 'checked' : ''} onchange="selectOption(${idx})">
+                    <span>${opt.text}</span>
+                </label>
+            `;
+            optionsContainer.appendChild(li);
+        });
+
+        document.getElementById('btn-prev').style.display = currentQuestionIndex === 0 ? 'none' : 'inline-block';
+        if (currentQuestionIndex === questions.length - 1) {
+            document.getElementById('btn-next').innerText = 'Finalizar Evaluacion';
+        } else {
+            document.getElementById('btn-next').innerText = 'Siguiente';
+        }
+    }
+
+    function selectOption(index) {
+        userAnswers[currentQuestionIndex] = index;
+    }
+
+    function nextQuestion() {
+        if (userAnswers[currentQuestionIndex] === null) {
+            alert('Por favor selecciona una respuesta antes de continuar.');
+            return;
+        }
+
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            loadQuestion();
+        }
+    }
+
+    function showResults() {
+        stepQuiz.classList.remove('active');
+        stepResults.classList.add('active');
+
+        document.getElementById('res-name').innerText = userInfo.fullName;
+        document.getElementById('res-emp').innerText = userInfo.empNumber;
+        document.getElementById('res-pos').innerText = userInfo.position;
+        document.getElementById('res-quad').innerText = userInfo.quadrant;
+
+        let score = 0;
+        const reviewContainer = document.getElementById('review-container');
+        reviewContainer.innerHTML = '';
+
+        questions.forEach((qData, qIdx) => {
+            const selectedOptIdx = userAnswers[qIdx];
+            const isCorrect = selectedOptIdx !== null && qData.options[selectedOptIdx].correct;
+            
+            if (isCorrect) score++;
+
+            const correctOpt = qData.options.find(o => o.correct);
+
+            const reviewDiv = document.createElement('div');
+            reviewDiv.className = `review-item ${isCorrect ? 'correct' : 'incorrect'}`;
+
+            reviewDiv.innerHTML = `
+                <div class="review-q">${qData.q}</div>
+                <div class="review-ans">
+                    <strong>Tu respuesta:</strong> 
+                    <span class="${isCorrect ? 'txt-correct' : 'txt-incorrect'}">
+                        ${selectedOptIdx !== null ? qData.options[selectedOptIdx].text : 'No respondida'}
+                    </span>
+                </div>
+                ${!isCorrect ? `<div class="review-ans"><strong>Respuesta correcta:</strong> <span class="txt-correct">${correctOpt.text}</span></div>` : ''}
+            `;
+            reviewContainer.appendChild(reviewDiv);
+        });
+
+        const percentageScore = ((score / questions.length) * 100).toFixed(1);
+        document.getElementById('final-score').innerText = `${score} / ${questions.length} (${percentageScore}%)`;
+
+        const badge = document.getElementById('qualification-badge');
+        if (score >= 24) {
+            badge.innerText = 'EVALUACIÓN: APROBADO (Excelente Dominio)';
+            badge.style.color = 'var(--success)';
+        } else if (score >= 18) {
+            badge.innerText = 'EVALUACIÓN: APROBADO (Satisfactorio)';
+            badge.style.color = '#ca8a04';
+        } else {
+            badge.innerText = 'EVALUACIÓN: NO APROBADO (Requiere Reforzamiento)';
+            badge.style.color = 'var(--error)';
+        }
+    }
+</script>
+</body>
+</html>
